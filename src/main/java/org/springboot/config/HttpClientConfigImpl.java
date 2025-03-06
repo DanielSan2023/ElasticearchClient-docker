@@ -20,11 +20,11 @@ public class HttpClientConfigImpl implements RestClientBuilder.HttpClientConfigC
     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpAsyncClientBuilder) {
         try {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials("elastic", "gF_m_Q=GRqHG-6ffqouQ");
+            UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials("elastic", "6kp_ceGixh9DOdh9KyFD");
             credentialsProvider.setCredentials(AuthScope.ANY, usernamePasswordCredentials);
             httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
 
-            String trustStoreLocation = "C:\\elasticsearch-8.7.0\\config\\certs\\truststore.p12";
+            String trustStoreLocation = "C:\\elasticsearch-8.7.0\\config\\certsForDockerContainers\\trustore.p12";
             File trustStoreLocationFile = new File(trustStoreLocation);
 
             SSLContextBuilder sslContextBuilder = SSLContexts.custom().loadTrustMaterial(trustStoreLocationFile, "password".toCharArray());
