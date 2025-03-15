@@ -16,8 +16,13 @@ import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-    @Autowired
+
     ElasticsearchClient client;
+
+    @Autowired
+    public ProductServiceImpl(ElasticsearchClient client) {
+        this.client = client;
+    }
 
     @Override
     public Product createProduct(Product product) {
@@ -107,39 +112,30 @@ public class ProductServiceImpl implements ProductService {
                 throw new ProductNotFoundException("Product deletion failed: ID " + id + " not found");
             }
         } catch (IOException e) {
-            throw new RuntimeException("Problem with deleting product with ID: " + id, e);
+            throw new ProductNotFoundException("Problem with deleting product with ID: " + id, e);
         }
     }
 
     @Override
-    public List<Product> getProductByCategory(String category) {
+    public List<Product> getProductByCategory(String category) throws ProductNotFoundException {
         SearchRequest request = new SearchRequest.Builder()
                 .index("products-002")
                 .query(q -> q
                         .match(t -> t
                                 .field("category")
-                                .query(category)))
+                                .query(category)
+                                .fuzziness("AUTO")))
                 .build();
 
-
-        SearchResponse response = null;
         try {
-            response = client.search(request, Product.class);
-
-            List<Hit<Product>> hits = response.hits().hits();
-            List<Product> products = new ArrayList<>();
-            for (Hit<Product> hit : hits) {
-                Product product = hit.source();
-                products.add(product);
-            }
-            return products;
+            return getProductListFromResponse(request);
         } catch (IOException e) {
-            throw new RuntimeException("Error while fetching products by category: " + category, e);
+            throw new ProductNotFoundException("Error while fetching products by category: " + category, e);
         }
     }
 
     @Override
-    public List<Product> searchByPriceRange(double minPrice, double maxPrice) {
+    public List<Product> searchByPriceRange(double minPrice, double maxPrice) throws ProductNotFoundException {
         SearchRequest request = new SearchRequest.Builder()
                 .index("products-002")
                 .query(q -> q
@@ -150,24 +146,14 @@ public class ProductServiceImpl implements ProductService {
                 .build();
 
         try {
-            SearchResponse response = client.search(request, Product.class);
-
-            List<Hit<Product>> hits = response.hits().hits();
-            List<Product> products = new ArrayList<>();
-
-            for (Hit<Product> hit : hits) {
-                Product product = hit.source();
-                products.add(product);
-            }
-            return products;
-
+            return getProductListFromResponse(request);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProductNotFoundException("Error while fetching products in the price range: " + minPrice + " to " + maxPrice, e);
         }
     }
 
     @Override
-    public List<Product> fuzzySearch(String searchTerm) {
+    public List<Product> fuzzySearch(String searchTerm) throws ProductNotFoundException {
         SearchRequest request = new SearchRequest.Builder()
                 .index("products-002")
                 .query(q -> q
@@ -176,31 +162,48 @@ public class ProductServiceImpl implements ProductService {
                                         .fuzzy(f -> f
                                                 .field("category")
                                                 .value(searchTerm)
-                                                .fuzziness("AUTO"))
-                                )
+                                                .fuzziness("AUTO")))
                                 .should(s -> s
                                         .fuzzy(f -> f
                                                 .field("name")
                                                 .value(searchTerm)
-                                                .fuzziness("AUTO"))
-                                )
-                        )
-                )
+                                                .fuzziness("AUTO")))))
                 .build();
 
-        SearchResponse<Product> response = null;
         try {
-            response = client.search(request, Product.class);
-
-            List<Hit<Product>> hits = response.hits().hits();
-            List<Product> products = new ArrayList<>();
-            for (Hit<Product> hit : hits) {
-                Product product = hit.source();
-                products.add(product);
-            }
-            return products;
+            return getProductListFromResponse(request);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProductNotFoundException("Error while fetching products for search term: " + searchTerm, e);
         }
+    }
+
+    @Override
+    public List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException {
+        SearchRequest request = new SearchRequest.Builder()
+                .index("products-002")
+                .query(q -> q
+                        .prefix(p -> p
+                                .field("name")
+                                .value(searchTerm)))
+                .build();
+
+        try {
+            return getProductListFromResponse(request);
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Error while fetching products for search term: " + searchTerm, e);
+        }
+    }
+
+    private List<Product> getProductListFromResponse(SearchRequest request) throws IOException {
+        SearchResponse<Product> response = null;
+
+        response = client.search(request, Product.class);
+        List<Hit<Product>> hits = response.hits().hits();
+        List<Product> products = new ArrayList<>();
+        for (Hit<Product> hit : hits) {
+            Product product = hit.source();
+            products.add(product);
+        }
+        return products;
     }
 }

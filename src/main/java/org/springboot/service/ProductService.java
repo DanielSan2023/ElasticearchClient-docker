@@ -20,9 +20,13 @@ public interface ProductService {
 
     boolean deleteProduct(String id) throws ProductNotFoundException;
 
-    List<Product> getProductByCategory(String category);
+    List<Product> getProductByCategory(String category) throws ProductNotFoundException;
 
-    List<Product> searchByPriceRange(double minPrice, double maxPrice);
+    List<Product> searchByPriceRange(double minPrice, double maxPrice) throws ProductNotFoundException;
 
-    List<Product> fuzzySearch(String searchTerm);
+    List<Product> fuzzySearch(String searchTerm) throws ProductNotFoundException;
+
+    List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException;
+
+
 }
