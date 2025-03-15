@@ -23,4 +23,6 @@ public interface ProductService {
     List<Product> getProductByCategory(String category);
 
     List<Product> searchByPriceRange(double minPrice, double maxPrice);
+
+    List<Product> fuzzySearch(String searchTerm);
 }

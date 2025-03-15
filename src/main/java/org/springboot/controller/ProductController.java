@@ -54,14 +54,20 @@ public class ProductController {
     }
 
     @GetMapping("/search/{category}")
-    public ResponseEntity<List<Product>> getAllProductByCategory(@PathVariable String category) throws IOException{
+    public ResponseEntity<List<Product>> getAllProductByCategory(@PathVariable String category) throws IOException {
         List<Product> products = productService.getProductByCategory(category);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/searchByPriceRange")
-    public ResponseEntity<List<Product>> searchByPriceRange(@RequestParam double minPrice,@RequestParam double maxPrice) throws IOException {
-        List<Product> products = productService.searchByPriceRange(minPrice,maxPrice);
+    public ResponseEntity<List<Product>> searchByPriceRange(@RequestParam double minPrice, @RequestParam double maxPrice) throws IOException {
+        List<Product> products = productService.searchByPriceRange(minPrice, maxPrice);
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/search/fuzzy")
+    public ResponseEntity<List<Product>> fuzzySearch(@RequestParam("query") String searchTerm) {
+        List<Product> products = productService.fuzzySearch(searchTerm);
         return ResponseEntity.ok(products);
     }
 }
