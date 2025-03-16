@@ -11,6 +11,8 @@ import java.util.List;
 public interface ProductService {
     Product addProduct(Product product);
 
+    Product soldProduct(String ean) throws ProductNotFoundException;
+
     Iterable<Product> getAllProducts() throws IOException;
 
     Product getProductByEAN(String id) throws ProductNotFoundException;
@@ -27,6 +29,4 @@ public interface ProductService {
     List<Product> fuzzySearch(String searchTerm) throws ProductNotFoundException;
 
     List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException;
-
-
 }

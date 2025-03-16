@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -31,16 +32,71 @@ public class ProductServiceImpl implements ProductService {
         product.setEan(eanCode);
 
         try {
+            GetRequest getRequest = new GetRequest.Builder()
+                    .index("products-002")
+                    .id(eanCode)
+                    .build();
+            GetResponse<Product> existingProduct = client.get(getRequest, Product.class);
+
+            if (existingProduct.found()) {
+                throw new IllegalStateException("Product with EAN: " + eanCode + " already exists.");
+            }
+
             IndexResponse response = client.index(i -> i
                     .index("products-002")
-                    .id(product.getEan())
+                    .id(eanCode)
                     .document(product));
+
+            if (response.result() == Result.Created) {
+                return product;
+            } else {
+                throw new RuntimeException("Failed to add product with EAN: " + eanCode);
+            }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RuntimeException("Problem with adding product with EAN: " + eanCode, e);
         }
-        return product;
     }
+
+    @Override
+    public Product soldProduct(String ean) throws ProductNotFoundException {
+        Product product = getProductByEAN(ean);
+
+        if (product == null) {
+            throw new ProductNotFoundException("Product with EAN: " + ean + " not found");
+        }
+
+        if (product.getAvailable() <= 0) {
+            throw new IllegalStateException("No stock available for EAN: " + ean);
+        }
+
+        int newAvailable = product.getAvailable() - 1;
+        int newSold = product.getSold() + 1;
+
+        Map<String, Object> updateFields = Map.of(
+                "available", newAvailable,
+                "sold", newSold);
+
+        UpdateRequest<Product, Map<String, Object>> request = new UpdateRequest.Builder<Product, Map<String, Object>>()
+                .index("products-002")
+                .id(ean)
+                .doc(updateFields)
+                .build();
+
+        try {
+            UpdateResponse response = client.update(request, Product.class);
+
+            if (response.result() == Result.Updated) {
+                product.setAvailable(newAvailable);
+                product.setSold(newSold);
+                return product;
+            } else {
+                throw new ProductNotFoundException("Product update failed: EAN " + ean + " not found");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Problem with updating product with EAN: " + ean, e);
+        }
+    }
+
 
     @Override
     public Iterable<Product> getAllProducts() throws IOException {
@@ -61,10 +117,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProductByEAN(String id) throws ProductNotFoundException {
+    public Product getProductByEAN(String ean) throws ProductNotFoundException {
         GetRequest request = new GetRequest.Builder()
                 .index("products-002")
-                .id(id)
+                .id(ean)
                 .build();
 
         try {
@@ -72,32 +128,45 @@ public class ProductServiceImpl implements ProductService {
             if (response.found()) {
                 return response.source();
             } else {
-                throw new ProductNotFoundException("Product with ID: " + id + " not found");
+                throw new ProductNotFoundException("Product with ID: " + ean + " not found");
             }
         } catch (IOException e) {
-            throw new ProductNotFoundException("Problem with find product with ID: " + id, e);
+            throw new ProductNotFoundException("Problem with find product with ID: " + ean, e);
         }
     }
 
     @Override
-    public Product updateProduct(String id, Product product) throws ProductNotFoundException {
-        UpdateRequest request = new UpdateRequest.Builder<Product, Product>()
+    public Product updateProduct(String ean, Product product) throws ProductNotFoundException {
+        Product existingProduct = getProductByEAN(ean);
+
+        if (existingProduct == null) {
+            throw new ProductNotFoundException("Product with ID: " + ean + " not found");
+        }
+
+        Map<String, Object> updateFields = Map.of(
+                "name", product.getName(),
+                "description", product.getDescription(),
+                "price", product.getPrice(),
+                "category", product.getCategory(),
+                "available", product.getAvailable(),
+                "sold", product.getSold()
+        );
+        UpdateRequest<Product, Map<String, Object>> request = new UpdateRequest.Builder<Product, Map<String, Object>>()
                 .index("products-002")
-                .id(id)
-                .doc(product)
+                .id(ean)
+                .doc(updateFields)
                 .build();
 
-        UpdateResponse response = null;
         try {
-            response = client.update(request, Product.class);
+            UpdateResponse<Product> response = client.update(request, Product.class);
 
             if (response.result() == Result.Updated) {
                 return product; // TODO check if get updated product from Elasticsearch
             } else {
-                throw new ProductNotFoundException("Product update failed: ID " + id + " not found");
+                throw new ProductNotFoundException("Product update failed: ID " + ean + " not found");
             }
         } catch (IOException e) {
-            throw new ProductNotFoundException("Problem with updating product with ID: " + id, e);
+            throw new ProductNotFoundException("Problem with updating product with ID: " + ean, e);
         }
     }
 

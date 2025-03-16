@@ -24,6 +24,12 @@ public class ProductController {
         return new ResponseEntity<>(savedProduct, HttpStatus.OK);
     }
 
+    @PutMapping("/sold/{id}")
+    public ResponseEntity<Product> soldProduct(@PathVariable String id) throws ProductNotFoundException {
+        Product updateProduct = productService.soldProduct(id);
+        return new ResponseEntity<>(updateProduct, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<Iterable<Product>> getAllProducts() throws IOException {
         Iterable<Product> allProducts = productService.getAllProducts();
