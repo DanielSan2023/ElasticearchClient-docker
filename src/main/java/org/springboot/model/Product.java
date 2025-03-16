@@ -2,7 +2,7 @@ package org.springboot.model;
 
 public class Product {
 
-    private String id;
+    private String ean;
 
     private String name;
 
@@ -12,23 +12,16 @@ public class Product {
 
     private String category;
 
-    public Product() {
+    private int available;
+
+    private int sold;
+
+    public String getEan() {
+        return ean;
     }
 
-    public Product(String id, String name, String description, double price, String category) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.category = category;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setEan(String ean) {
+        this.ean = ean;
     }
 
     public String getName() {
@@ -63,15 +56,34 @@ public class Product {
         this.category = category;
     }
 
+    public int getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(int available) {
+        this.available = available;
+    }
+
+    public int getSold() {
+        return sold;
+    }
+
+    public void setSold(int sold) {
+        this.sold = sold;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
-                "id='" + id + '\'' +
+                "ean='" + ean + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", category='" + category + '\'' +
+                ", available=" + available +
+                ", sold=" + sold +
                 '}';
     }
 }
+
 

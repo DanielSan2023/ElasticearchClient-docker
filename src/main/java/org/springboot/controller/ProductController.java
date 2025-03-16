@@ -20,7 +20,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product savedProduct = productService.createProduct(product);
+        Product savedProduct = productService.addProduct(product);
         return new ResponseEntity<>(savedProduct, HttpStatus.OK);
     }
 
@@ -32,7 +32,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable String id) throws ProductNotFoundException {
-        Product product = productService.getProductByID(id);
+        Product product = productService.getProductByEAN(id);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 

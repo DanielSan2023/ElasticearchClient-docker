@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
 import org.springboot.exception.ProductNotFoundException;
+import org.springboot.generator.EANGenerator;
 import org.springboot.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,23 +26,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product createProduct(Product product) {
+    public Product addProduct(Product product) {
+        String eanCode = EANGenerator.generateRandomEAN13();
+        product.setEan(eanCode);
+
         try {
             IndexResponse response = client.index(i -> i
                     .index("products-002")
-                    .id(product.getId())
+                    .id(product.getEan())
                     .document(product));
         } catch (IOException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
-        return null;
+        return product;
     }
 
     @Override
     public Iterable<Product> getAllProducts() throws IOException {
         SearchRequest request = new SearchRequest.Builder()
                 .index("products-002")
+                .size(100)
                 .build();
         SearchResponse response = client.search(request, Product.class);
 
@@ -56,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProductByID(String id) throws ProductNotFoundException {
+    public Product getProductByEAN(String id) throws ProductNotFoundException {
         GetRequest request = new GetRequest.Builder()
                 .index("products-002")
                 .id(id)

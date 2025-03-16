@@ -9,11 +9,11 @@ import java.util.List;
 
 @Service
 public interface ProductService {
-    Product createProduct(Product product);
+    Product addProduct(Product product);
 
     Iterable<Product> getAllProducts() throws IOException;
 
-    Product getProductByID(String id) throws ProductNotFoundException;
+    Product getProductByEAN(String id) throws ProductNotFoundException;
 
     Product updateProduct(String id, Product product) throws ProductNotFoundException;
 
