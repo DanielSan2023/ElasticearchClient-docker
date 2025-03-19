@@ -2,7 +2,10 @@ package org.springboot.config;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -22,8 +25,12 @@ public class GetESClient {
 
         RestClient restClient = builder.build();
 
-        RestClientTransport restClientTransport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
-        return new ElasticsearchClient(restClientTransport);
+        JacksonJsonpMapper jsonpMapper = new JacksonJsonpMapper(objectMapper);
+        ElasticsearchTransport transport = new RestClientTransport(restClient, jsonpMapper);
+
+        return new ElasticsearchClient(transport);
     }
 }
