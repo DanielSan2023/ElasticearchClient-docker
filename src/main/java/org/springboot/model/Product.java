@@ -1,5 +1,9 @@
 package org.springboot.model;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Product {
 
     private String ean;
@@ -15,6 +19,8 @@ public class Product {
     private int available;
 
     private int sold;
+
+    private List<Instant> soldTimestamps = new ArrayList<>();
 
     public String getEan() {
         return ean;
@@ -72,6 +78,14 @@ public class Product {
         this.sold = sold;
     }
 
+    public List<Instant> getSoldTimestamps() {
+        return soldTimestamps;
+    }
+
+    public void setSoldTimestamps(List<Instant> soldTimestamps) {
+        this.soldTimestamps = soldTimestamps;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -82,6 +96,7 @@ public class Product {
                 ", category='" + category + '\'' +
                 ", available=" + available +
                 ", sold=" + sold +
+                ", soldTimestamps=" + soldTimestamps +
                 '}';
     }
 }
