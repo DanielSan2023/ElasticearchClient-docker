@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.*;
 
@@ -100,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
             }
         } catch (IOException e) {
             System.err.println("IOException occurred: " + e.getMessage());
-            e.printStackTrace();  // Logs the full stack trace for better debugging
+            e.printStackTrace();
             throw new RuntimeException("Problem with updating product with EAN: " + ean, e);
         } catch (IllegalStateException e) {
             System.err.println("IllegalStateException occurred: " + e.getMessage());
