@@ -67,15 +67,10 @@ public class ProductServiceImpl implements ProductService {
 
         int newAvailable = product.getAvailable() - 1;
         int newSold = product.getSold() + 1;
-        Instant timestamp = Instant.now();
-
-        List<Instant> updatedSoldTimestamps = new ArrayList<>(product.getSoldTimestamps());
-        updatedSoldTimestamps.add(timestamp);
 
         Map<String, Object> updateFields = new HashMap<>();
         updateFields.put("available", newAvailable);
         updateFields.put("sold", newSold);
-        updateFields.put("soldTimestamps", updatedSoldTimestamps);
 
         UpdateRequest<Product, Map<String, Object>> request = new UpdateRequest.Builder<Product, Map<String, Object>>()
                 .index("products-002")
@@ -92,7 +87,6 @@ public class ProductServiceImpl implements ProductService {
             if (response.result() == Result.Updated) {
                 product.setAvailable(newAvailable);
                 product.setSold(newSold);
-                product.setSoldTimestamps(updatedSoldTimestamps);
                 return product;
             } else {
                 throw new ProductNotFoundException("Product update failed: EAN " + ean + " not found in Elasticsearch");
