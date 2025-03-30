@@ -14,14 +14,14 @@ public class Order {
     private String customerId;
     private Long orderDate;
     private double totalAmount;
-    private List<Product> products;
+    private List<String> productEans;
 
-    public Order(String orderId, String customerId, double totalAmount, List<Product> products) {
+    public Order(String orderId, String customerId, double totalAmount, List<String> productEans) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.orderDate = Instant.now().toEpochMilli();
         this.totalAmount = totalAmount;
-        this.products = products;
+        this.productEans = productEans;
     }
 
     public Order() {
@@ -64,12 +64,12 @@ public class Order {
         this.totalAmount = totalAmount;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public List<String> getProductEans() {
+        return productEans;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setProductEans(List<String> productEans) {
+        this.productEans = productEans;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class Order {
                 ", customerId='" + customerId + '\'' +
                 ", orderDate=" + getFormattedOrderDate() +
                 ", totalAmount=" + totalAmount +
-                ", products=" + products +
+                ", productEans=" + productEans +
                 '}';
     }
 }
