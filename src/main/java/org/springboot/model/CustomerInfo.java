@@ -11,6 +11,9 @@ public class CustomerInfo {
 
     private List<String> orderIds;
 
+    public CustomerInfo() {
+    }
+
     public CustomerInfo(String customerId, String firstName, String lastName, String email, List<String> orderIds) {
         this.customerId = customerId;
         this.firstName = firstName;

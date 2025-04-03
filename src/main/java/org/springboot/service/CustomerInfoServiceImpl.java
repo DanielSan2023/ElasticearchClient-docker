@@ -2,22 +2,26 @@ package org.springboot.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Result;
-import co.elastic.clients.elasticsearch.core.GetRequest;
-import co.elastic.clients.elasticsearch.core.GetResponse;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.core.*;
 import org.springboot.generator.MyUuidGenerator;
 import org.springboot.model.CustomerInfo;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.*;
 
 @Service
 public class CustomerInfoServiceImpl implements CustomerInfoService {
 
     private final ElasticsearchClient client;
+    private final ElasticsearchServiceImpl elasticsearchService;
 
-    public CustomerInfoServiceImpl(ElasticsearchClient client) {
+    public CustomerInfoServiceImpl(ElasticsearchClient client, ElasticsearchServiceImpl elasticsearchService) {
         this.client = client;
+        this.elasticsearchService = elasticsearchService;
     }
 
     @Override
@@ -48,6 +52,38 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
             }
         } catch (IOException e) {
             throw new RuntimeException("Problem with adding customer with id: " + customerId, e);
+        }
+    }
+
+    @Override
+    public CustomerInfo addOrderToCustomer(String customerId, String orderId) {
+        try {
+            CustomerInfo customer = elasticsearchService.getById("customers-002", customerId, CustomerInfo.class);
+
+            List<String> orders = Optional.ofNullable(customer.getOrderIds()).orElseGet(ArrayList::new);
+            orders.add(orderId);
+            customer.setOrderIds(orders);
+
+            Map<String, Object> updateFields = new HashMap<>();
+            updateFields.put("orderIds", orders);
+
+            UpdateRequest<CustomerInfo, Map<String, Object>> request = new UpdateRequest.Builder<CustomerInfo, Map<String, Object>>()
+                    .index("customers-002")
+                    .id(customerId)
+                    .doc(updateFields)
+                    .build();
+
+            UpdateResponse<CustomerInfo> response = client.update(request, CustomerInfo.class);
+            if (response.result().name().equalsIgnoreCase("noop")) {
+                throw new RuntimeException("No update was performed for customer ID: " + customerId);
+            }
+            return customer;
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Customer with Id: "+ customerId +" not found in Elastic!");
+        } catch (IOException e) {
+            throw new RuntimeException("Error while updating customer orders for customerId: " + customerId, e);
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error occurred while updating customer orders", e);
         }
     }
 }
