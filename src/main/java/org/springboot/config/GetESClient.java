@@ -10,13 +10,17 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@Profile("prod")
 public class GetESClient {
 
-    @Bean
+    @Bean(name = "elasticsearchClient")
+    @Primary
     public ElasticsearchClient getElasticsearchClient() {
         RestClientBuilder builder = RestClient.builder(new HttpHost("localhost", 9200, "https"));
 

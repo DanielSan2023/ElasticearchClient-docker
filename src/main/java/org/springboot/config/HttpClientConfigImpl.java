@@ -9,11 +9,13 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
 
 @Configuration
+@Profile("prod")
 public class HttpClientConfigImpl implements RestClientBuilder.HttpClientConfigCallback {
 
     @Override
