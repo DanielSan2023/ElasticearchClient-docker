@@ -5,7 +5,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.context.annotation.Configuration;
@@ -18,19 +17,26 @@ import java.io.File;
 @Profile("prod")
 public class HttpClientConfigImpl implements RestClientBuilder.HttpClientConfigCallback {
 
+    private final ElasticsearchProperties properties;
+
+    public HttpClientConfigImpl(ElasticsearchProperties properties) {
+        this.properties = properties;
+    }
+
     @Override
     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpAsyncClientBuilder) {
         try {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials("elastic", "6kp_ceGixh9DOdh9KyFD");
+            UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword());
+
             credentialsProvider.setCredentials(AuthScope.ANY, usernamePasswordCredentials);
             httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
 
-            String trustStoreLocation = "C:\\elasticsearch-8.7.0\\config\\certsForDockerContainers\\trustore.p12";
-            File trustStoreLocationFile = new File(trustStoreLocation);
+            File trustStoreFile = new File(properties.getTruststorePath());
 
-            SSLContextBuilder sslContextBuilder = SSLContexts.custom().loadTrustMaterial(trustStoreLocationFile, "password".toCharArray());
-            SSLContext sslContext = sslContextBuilder.build();
+            SSLContext sslContext = SSLContexts.custom()
+                    .loadTrustMaterial(trustStoreFile, properties.getTruststorePassword().toCharArray())
+                    .build();
 
             httpAsyncClientBuilder.setSSLContext(sslContext);
 

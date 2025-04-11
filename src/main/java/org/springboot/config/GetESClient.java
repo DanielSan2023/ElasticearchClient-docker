@@ -9,6 +9,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
@@ -18,14 +20,18 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("prod")
 public class GetESClient {
+    private final HttpClientConfigImpl httpClientConfigImpl;
+
+    public GetESClient(HttpClientConfigImpl httpClientConfigImpl) {
+        this.httpClientConfigImpl = httpClientConfigImpl;
+    }
 
     @Bean(name = "elasticsearchClient")
     @Primary
     public ElasticsearchClient getElasticsearchClient() {
         RestClientBuilder builder = RestClient.builder(new HttpHost("localhost", 9200, "https"));
 
-        RestClientBuilder.HttpClientConfigCallback httpClientConfigCallback = new HttpClientConfigImpl();
-        builder.setHttpClientConfigCallback(httpClientConfigCallback);
+        builder.setHttpClientConfigCallback(httpClientConfigImpl);
 
         RestClient restClient = builder.build();
 
