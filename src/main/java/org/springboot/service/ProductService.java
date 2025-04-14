@@ -13,12 +13,9 @@ public interface ProductService {
 
     Product soldProduct(String ean) throws ProductNotFoundException;
 
-    Iterable<Product> getAllProducts() throws IOException;
-
     Product getProductByEAN(String id) throws ProductNotFoundException;
 
     Product updateProduct(String id, Product product) throws ProductNotFoundException;
-
 
     boolean deleteProduct(String id) throws ProductNotFoundException;
 

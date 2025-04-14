@@ -8,21 +8,23 @@ import co.elastic.clients.json.JsonData;
 import org.springboot.exception.ProductNotFoundException;
 import org.springboot.generator.EANGenerator;
 import org.springboot.model.Product;
+import org.springboot.utility.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    ElasticsearchClient client;
+    private final ElasticsearchClient client;
+    private final ElasticsearchServiceImpl elasticsearchService;
 
     @Autowired
-    public ProductServiceImpl(ElasticsearchClient client) {
+    public ProductServiceImpl(ElasticsearchClient client, ElasticsearchServiceImpl elasticsearchService) {
         this.client = client;
+        this.elasticsearchService = elasticsearchService;
     }
 
     @Override
@@ -31,18 +33,25 @@ public class ProductServiceImpl implements ProductService {
         product.setEan(eanCode);
 
         try {
+            boolean indexExists = client.indices().exists(e -> e.index(AppConstants.INDEX_PRODUCTS)).value();
+
+            if (!indexExists) {
+                client.indices().create(c -> c.index(AppConstants.INDEX_PRODUCTS));
+            }
+
             GetRequest getRequest = new GetRequest.Builder()
-                    .index("products-002")
+                    .index(AppConstants.INDEX_PRODUCTS)
                     .id(eanCode)
                     .build();
             GetResponse<Product> existingProduct = client.get(getRequest, Product.class);
+
 
             if (existingProduct.found()) {
                 throw new IllegalStateException("Product with EAN: " + eanCode + " already exists.");
             }
 
             IndexResponse response = client.index(i -> i
-                    .index("products-002")
+                    .index(AppConstants.INDEX_PRODUCTS)
                     .id(eanCode)
                     .document(product));
 
@@ -58,7 +67,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product soldProduct(String ean) throws ProductNotFoundException {
-        Product product = Optional.ofNullable(getProductByEAN(ean))
+        Product product = Optional.ofNullable(elasticsearchService.getById(AppConstants.INDEX_PRODUCTS, ean, Product.class))
                 .orElseThrow(() -> new ProductNotFoundException("Product with EAN: " + ean + " not found"));
 
         if (product.getAvailable() <= 0) {
@@ -73,16 +82,13 @@ public class ProductServiceImpl implements ProductService {
         updateFields.put("sold", newSold);
 
         UpdateRequest<Product, Map<String, Object>> request = new UpdateRequest.Builder<Product, Map<String, Object>>()
-                .index("products-002")
+                .index(AppConstants.INDEX_PRODUCTS)
                 .id(ean)
                 .doc(updateFields)
                 .build();
 
         try {
-                        System.out.println("Sending update request for product with EAN: " + ean);
             UpdateResponse<Product> response = client.update(request, Product.class);
-
-                        System.out.println("Response from Elasticsearch: " + response);
 
             if (response.result() == Result.Updated) {
                 product.setAvailable(newAvailable);
@@ -93,29 +99,176 @@ public class ProductServiceImpl implements ProductService {
             }
         } catch (IOException e) {
             System.err.println("IOException occurred: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException("Problem with updating product with EAN: " + ean, e);
         } catch (IllegalStateException e) {
             System.err.println("IllegalStateException occurred: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         } catch (Exception e) {
             System.err.println("Unexpected error occurred: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException("Unexpected error occurred while updating product", e);
         }
     }
 
     @Override
-    public Iterable<Product> getAllProducts() throws IOException {
-        SearchRequest request = new SearchRequest.Builder()
-                .index("products-002")
-                .size(100)
+    public Product getProductByEAN(String ean) throws ProductNotFoundException {
+        GetRequest request = new GetRequest.Builder()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .id(ean)
                 .build();
-        SearchResponse response = client.search(request, Product.class);
 
+        try {
+            GetResponse<Product> response = client.get(request, Product.class);
+
+            if (response.found()) {
+                return response.source();
+            } else {
+                throw new ProductNotFoundException("Product with ID: " + ean + " not found");
+            }
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Problem with finding product with EAN: " + ean, e);
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error occurred while searching for product with EAN: " + ean, e);
+        }
+    }
+
+    @Override
+    public Product updateProduct(String ean, Product product) throws ProductNotFoundException {
+        Product existingProduct = getProductByEAN(ean);
+
+        if (existingProduct == null) {
+            throw new ProductNotFoundException("Product with ID: " + ean + " not found");
+        }
+
+        Map<String, Object> updateFields = Map.of(
+                "name", product.getName(),
+                "description", product.getDescription(),
+                "price", product.getPrice(),
+                "category", product.getCategory(),
+                "available", product.getAvailable(),
+                "sold", product.getSold()
+        );
+        UpdateRequest<Product, Map<String, Object>> request = new UpdateRequest.Builder<Product, Map<String, Object>>()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .id(ean)
+                .doc(updateFields)
+                .build();
+
+        try {
+            UpdateResponse<Product> response = client.update(request, Product.class);
+
+            if (response.result() == Result.Updated) {
+                return product;
+            } else {
+                throw new ProductNotFoundException("Product update failed: ID " + ean + " not found");
+            }
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Problem with updating product with ID: " + ean, e);
+        }
+    }
+
+    @Override
+    public boolean deleteProduct(String id) throws ProductNotFoundException {
+        DeleteRequest request = new DeleteRequest.Builder()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .id(id)
+                .build();
+
+        DeleteResponse response;
+        try {
+            response = client.delete(request);
+            if (response.result() == Result.Deleted) {
+                return true;
+            } else {
+                throw new ProductNotFoundException("Product deletion failed: ID " + id + " not found");
+            }
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Problem with deleting product with ID: " + id, e);
+        }
+    }
+
+    @Override
+    public List<Product> getProductByCategory(String category) throws ProductNotFoundException {
+        SearchRequest request = new SearchRequest.Builder()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .query(q -> q
+                        .match(t -> t
+                                .field("category")
+                                .query(category)
+                                .fuzziness("AUTO")))
+                .build();
+
+        try {
+            return getProductListFromResponse(request);
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Error while fetching products by category: " + category, e);
+        }
+    }
+
+    @Override
+    public List<Product> searchByPriceRange(double minPrice, double maxPrice) throws ProductNotFoundException {
+        SearchRequest request = new SearchRequest.Builder()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .query(q -> q
+                        .range(r -> r
+                                .field("price")
+                                .gte(JsonData.of(minPrice))
+                                .lte(JsonData.of(maxPrice))))
+                .build();
+
+        try {
+            return getProductListFromResponse(request);
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Error while fetching products in the price range: " + minPrice + " to " + maxPrice, e);
+        }
+    }
+
+    @Override
+    public List<Product> fuzzySearch(String searchTerm) throws ProductNotFoundException {
+        SearchRequest request = new SearchRequest.Builder()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .query(q -> q
+                        .bool(b -> b
+                                .should(s -> s
+                                        .fuzzy(f -> f
+                                                .field("category")
+                                                .value(searchTerm)
+                                                .fuzziness("AUTO")))
+                                .should(s -> s
+                                        .fuzzy(f -> f
+                                                .field("name")
+                                                .value(searchTerm)
+                                                .fuzziness("AUTO")))))
+                .build();
+
+        try {
+            return getProductListFromResponse(request);
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Error while fetching products for search term: " + searchTerm, e);
+        }
+    }
+
+    @Override
+    public List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException {
+        SearchRequest request = new SearchRequest.Builder()
+                .index(AppConstants.INDEX_PRODUCTS)
+                .query(q -> q
+                        .prefix(p -> p
+                                .field("name")
+                                .value(searchTerm)))
+                .build();
+
+        try {
+            return getProductListFromResponse(request);
+        } catch (IOException e) {
+            throw new ProductNotFoundException("Error while fetching products for search term: " + searchTerm, e);
+        }
+    }
+
+    private List<Product> getProductListFromResponse(SearchRequest request) throws IOException {
+        SearchResponse<Product> response = null;
+
+        response = client.search(request, Product.class);
         List<Hit<Product>> hits = response.hits().hits();
-
         List<Product> products = new ArrayList<>();
         for (Hit<Product> hit : hits) {
             Product product = hit.source();
@@ -123,169 +276,4 @@ public class ProductServiceImpl implements ProductService {
         }
         return products;
     }
-
-@Override
-public Product getProductByEAN(String ean) throws ProductNotFoundException {
-    GetRequest request = new GetRequest.Builder()
-            .index("products-002")
-            .id(ean)
-            .build();
-
-    try {
-        GetResponse<Product> response = client.get(request, Product.class);
-        if (response.found()) {
-            return response.source();
-        } else {
-            throw new ProductNotFoundException("Product with ID: " + ean + " not found");
-        }
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Problem with find product with ID: " + ean, e);
-    }
-}
-
-@Override
-public Product updateProduct(String ean, Product product) throws ProductNotFoundException {
-    Product existingProduct = getProductByEAN(ean);
-
-    if (existingProduct == null) {
-        throw new ProductNotFoundException("Product with ID: " + ean + " not found");
-    }
-
-    Map<String, Object> updateFields = Map.of(
-            "name", product.getName(),
-            "description", product.getDescription(),
-            "price", product.getPrice(),
-            "category", product.getCategory(),
-            "available", product.getAvailable(),
-            "sold", product.getSold()
-    );
-    UpdateRequest<Product, Map<String, Object>> request = new UpdateRequest.Builder<Product, Map<String, Object>>()
-            .index("products-002")
-            .id(ean)
-            .doc(updateFields)
-            .build();
-
-    try {
-        UpdateResponse<Product> response = client.update(request, Product.class);
-
-        if (response.result() == Result.Updated) {
-            return product; // TODO check if get updated product from Elasticsearch
-        } else {
-            throw new ProductNotFoundException("Product update failed: ID " + ean + " not found");
-        }
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Problem with updating product with ID: " + ean, e);
-    }
-}
-
-@Override
-public boolean deleteProduct(String id) throws ProductNotFoundException {
-    DeleteRequest request = new DeleteRequest.Builder()
-            .index("products-002")
-            .id(id)
-            .build();
-
-    DeleteResponse response = null;
-    try {
-        response = client.delete(request);
-        if (response.result() == Result.Deleted) {
-            return true;
-        } else {
-            throw new ProductNotFoundException("Product deletion failed: ID " + id + " not found");
-        }
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Problem with deleting product with ID: " + id, e);
-    }
-}
-
-@Override
-public List<Product> getProductByCategory(String category) throws ProductNotFoundException {
-    SearchRequest request = new SearchRequest.Builder()
-            .index("products-002")
-            .query(q -> q
-                    .match(t -> t
-                            .field("category")
-                            .query(category)
-                            .fuzziness("AUTO")))
-            .build();
-
-    try {
-        return getProductListFromResponse(request);
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Error while fetching products by category: " + category, e);
-    }
-}
-
-@Override
-public List<Product> searchByPriceRange(double minPrice, double maxPrice) throws ProductNotFoundException {
-    SearchRequest request = new SearchRequest.Builder()
-            .index("products-002")
-            .query(q -> q
-                    .range(r -> r
-                            .field("price")
-                            .gte(JsonData.of(minPrice))
-                            .lte(JsonData.of(maxPrice))))
-            .build();
-
-    try {
-        return getProductListFromResponse(request);
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Error while fetching products in the price range: " + minPrice + " to " + maxPrice, e);
-    }
-}
-
-@Override
-public List<Product> fuzzySearch(String searchTerm) throws ProductNotFoundException {
-    SearchRequest request = new SearchRequest.Builder()
-            .index("products-002")
-            .query(q -> q
-                    .bool(b -> b
-                            .should(s -> s
-                                    .fuzzy(f -> f
-                                            .field("category")
-                                            .value(searchTerm)
-                                            .fuzziness("AUTO")))
-                            .should(s -> s
-                                    .fuzzy(f -> f
-                                            .field("name")
-                                            .value(searchTerm)
-                                            .fuzziness("AUTO")))))
-            .build();
-
-    try {
-        return getProductListFromResponse(request);
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Error while fetching products for search term: " + searchTerm, e);
-    }
-}
-
-@Override
-public List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException {
-    SearchRequest request = new SearchRequest.Builder()
-            .index("products-002")
-            .query(q -> q
-                    .prefix(p -> p
-                            .field("name")
-                            .value(searchTerm)))
-            .build();
-
-    try {
-        return getProductListFromResponse(request);
-    } catch (IOException e) {
-        throw new ProductNotFoundException("Error while fetching products for search term: " + searchTerm, e);
-    }
-}
-
-private List<Product> getProductListFromResponse(SearchRequest request) throws IOException {
-    SearchResponse<Product> response = null;
-
-    response = client.search(request, Product.class);
-    List<Hit<Product>> hits = response.hits().hits();
-    List<Product> products = new ArrayList<>();
-    for (Hit<Product> hit : hits) {
-        Product product = hit.source();
-        products.add(product);
-    }
-    return products;
-}
 }
