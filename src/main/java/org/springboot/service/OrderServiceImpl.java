@@ -1,52 +1,51 @@
 package org.springboot.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
 import org.springboot.dto.OrderDto;
 import org.springboot.exception.ProductNotFoundException;
 import org.springboot.generator.MyUuidGenerator;
+import org.springboot.model.CustomerInfo;
 import org.springboot.model.Order;
 import org.springboot.model.Product;
+import org.springboot.utility.AppConstants;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    ElasticsearchClient client;
-    ProductServiceImpl productService;
+    private final ElasticsearchClient client;
+    private final ProductServiceImpl productService;
+    private final ElasticsearchServiceImpl elasticsearchService;
+    private final CustomerInfoServiceImpl customerService;
 
-    public OrderServiceImpl(ElasticsearchClient client, ProductServiceImpl productService) {
+    public OrderServiceImpl(ElasticsearchClient client, ProductServiceImpl productService, ElasticsearchServiceImpl elasticsearchService, CustomerInfoServiceImpl customerService) {
         this.client = client;
         this.productService = productService;
+        this.elasticsearchService = elasticsearchService;
+        this.customerService = customerService;
     }
 
     @Override
     public Order addOrder(String customerId, List<String> productEans) {
-        try {
-            double totalAmount = productEans.stream()
-                    .map(ean -> {
-                        try {
-                            return productService.soldProduct(ean);
-                        } catch (ProductNotFoundException e) {
-                            throw new RuntimeException("Product with EAN " + ean + " not found", e);
-                        }
-                    })
-                    .mapToDouble(Product::getPrice)
-                    .sum();
+        validateCustomer(customerId);
+        double totalAmount = getTotalAmount(productEans);
 
+        try {
             String orderId = MyUuidGenerator.generateUuid();
             Order order = new Order(orderId, customerId, totalAmount, productEans);
 
+            customerService.addOrderToCustomer(customerId, orderId);
             saveOrder(order);
-            return order;
 
+            return order;
         } catch (IOException e) {
             throw new RuntimeException("Error while processing the order for customerId: " + customerId, e);
         } catch (Exception e) {
@@ -54,49 +53,26 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Override
-    public Iterable<Order> getAllOrders() {
-        SearchRequest request = new SearchRequest.Builder()
-                .index("orders-002")
-                .size(100)
-                .build();
-        try {
-            SearchResponse response = client.search(request, Order.class);
-            System.out.println(response);
-
-            List<Hit<Order>> hits = response.hits().hits();
-            List<Order> orders = new ArrayList<>();
-            for (Hit<Order> hit : hits) {
-                Order order = hit.source();
-                orders.add(order);
-            }
-            return orders;
-        } catch (IOException e) {
-            throw new RuntimeException("Error while processing the order: " + e.getMessage(), e);
-        }
+    private void validateCustomer(String customerId) {
+        Optional.ofNullable(elasticsearchService.getById(AppConstants.INDEX_CUSTOMERS, customerId, CustomerInfo.class))
+                .orElseThrow(() -> new NoSuchElementException("Customer with ID: " + customerId + " not found"));
     }
 
-    @Override
-    public Order getById(String id) {
-        GetRequest request = new GetRequest.Builder()
-                .index("orders-002")
-                .id(id)
-                .build();
-
-        try {
-            GetResponse<Order> response = client.get(request, Order.class);
-            if (response.found()) {
-                return response.source();
-            } else {
-                throw new RuntimeException("Order with ID: " + id + " not found");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Order with find product with ID: " + id, e);
-        }
+    private double getTotalAmount(List<String> productEans) {
+        return productEans.stream()
+                .map(ean -> {
+                    try {
+                        return productService.soldProduct(ean);
+                    } catch (ProductNotFoundException e) {
+                        throw new RuntimeException("Product with EAN " + ean + " not found", e);
+                    }
+                })
+                .mapToDouble(Product::getPrice)
+                .sum();
     }
 
     public OrderDto getOrderWithProducts(String orderId) {
-        Order order = getById(orderId);
+        Order order = elasticsearchService.getById(AppConstants.INDEX_ORDERS, orderId, Order.class);
 
         List<Product> products = order.getProductEans().stream()
                 .map(ean -> {
@@ -108,12 +84,12 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .collect(Collectors.toList());
 
-        return new OrderDto(order,products);
+        return new OrderDto(order, products);
     }
 
     private void saveOrder(Order order) throws IOException {
         IndexRequest<Order> request = IndexRequest.of(i -> i
-                .index("orders-002")
+                .index(AppConstants.INDEX_ORDERS)
                 .id(order.getOrderId())
                 .document(order)
         );

@@ -12,9 +12,5 @@ import java.util.List;
 public interface OrderService {
     Order addOrder(String customerId, List<String> productEans) throws ProductNotFoundException;
 
-    Iterable<Order> getAllOrders() throws IOException;
-
-    Order getById(String id) throws IOException;
-
-     OrderDto getOrderWithProducts(String orderId);
+    OrderDto getOrderWithProducts(String orderId);
 }
