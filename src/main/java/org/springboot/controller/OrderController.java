@@ -2,12 +2,10 @@ package org.springboot.controller;
 
 import org.springboot.dto.OrderDto;
 import org.springboot.exception.ProductNotFoundException;
-import org.springboot.model.CustomerInfo;
 import org.springboot.model.Order;
 import org.springboot.service.ElasticsearchServiceImpl;
 import org.springboot.service.OrderService;
 import org.springboot.utility.AppConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +48,14 @@ public class OrderController {
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
-    //TODO deleteOrderById
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteOrderById(@PathVariable String id) {
+        boolean isDeleted = orderService.deleteOrderById(id);
 
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
