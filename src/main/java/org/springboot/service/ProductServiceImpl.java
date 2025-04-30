@@ -98,13 +98,8 @@ public class ProductServiceImpl implements ProductService {
                 throw new ProductNotFoundException("Product update failed: EAN " + ean + " not found in Elasticsearch");
             }
         } catch (IOException e) {
-            System.err.println("IOException occurred: " + e.getMessage());
             throw new RuntimeException("Problem with updating product with EAN: " + ean, e);
-        } catch (IllegalStateException e) {
-            System.err.println("IllegalStateException occurred: " + e.getMessage());
-            throw e;
         } catch (Exception e) {
-            System.err.println("Unexpected error occurred: " + e.getMessage());
             throw new RuntimeException("Unexpected error occurred while updating product", e);
         }
     }
@@ -275,5 +270,23 @@ public class ProductServiceImpl implements ProductService {
             products.add(product);
         }
         return products;
+    }
+
+    @Override
+    public void updateProductsAfterOrderDeletion(List<Product> products) {
+        for (Product product : products) {
+            String ean = product.getEan();
+            int newAvailable = product.getAvailable() + 1;
+            int newSold = Math.max(0, product.getSold() - 1);
+
+            product.setAvailable(newAvailable);
+            product.setSold(newSold);
+
+            try {
+                updateProduct(ean, product);
+            } catch (ProductNotFoundException e) {
+                throw new RuntimeException("Product with EAN " + ean + " not found", e);
+            }
+        }
     }
 }

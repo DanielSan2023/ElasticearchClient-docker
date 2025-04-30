@@ -1,5 +1,6 @@
 package org.springboot.service;
 
+import org.springboot.dto.OrderDto;
 import org.springboot.exception.ProductNotFoundException;
 import org.springboot.model.Product;
 import org.springframework.stereotype.Service;
@@ -26,4 +27,6 @@ public interface ProductService {
     List<Product> fuzzySearch(String searchTerm) throws ProductNotFoundException;
 
     List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException;
+
+    void updateProductsAfterOrderDeletion(List<Product> products);
 }
