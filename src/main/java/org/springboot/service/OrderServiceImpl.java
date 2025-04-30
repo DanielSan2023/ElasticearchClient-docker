@@ -1,8 +1,8 @@
 package org.springboot.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch._types.Result;
+import co.elastic.clients.elasticsearch.core.*;
 import org.springboot.dto.OrderDto;
 import org.springboot.exception.ProductNotFoundException;
 import org.springboot.generator.MyUuidGenerator;
@@ -77,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
         List<Product> products = order.getProductEans().stream()
                 .map(ean -> {
                     try {
-                        return productService.soldProduct(ean);
+                        return productService.getProductByEAN(ean);
                     } catch (ProductNotFoundException e) {
                         throw new RuntimeException("Product with EAN " + ean + " not found", e);
                     }
@@ -99,4 +99,37 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Failed to save order in Elasticsearch");
         }
     }
+
+    @Override
+    public boolean deleteOrderById(String id) {
+        GetRequest getRequest = new GetRequest.Builder()
+                .index(AppConstants.INDEX_ORDERS)
+                .id(id)
+                .build();
+
+        try {
+            GetResponse<Order> getResponse = client.get(getRequest, Order.class);
+            if (!getResponse.found()) {
+                return false;
+            }
+
+            OrderDto order = getOrderWithProducts(id);
+            List<Product> products = order.products();
+
+            productService.updateProductsAfterOrderDeletion(products);
+
+            DeleteRequest deleteRequest = new DeleteRequest.Builder()
+                    .index(AppConstants.INDEX_ORDERS)
+                    .id(id)
+                    .build();
+
+            DeleteResponse deleteResponse = client.delete(deleteRequest);
+
+            return deleteResponse.result() == Result.Deleted;
+
+        } catch (IOException e) {
+            throw new NoSuchElementException("Problem with deleting order with ID: " + id, e);
+        }
+    }
+
 }

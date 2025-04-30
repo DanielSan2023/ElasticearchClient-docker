@@ -13,4 +13,6 @@ public interface OrderService {
     Order addOrder(String customerId, List<String> productEans) throws ProductNotFoundException;
 
     OrderDto getOrderWithProducts(String orderId);
+
+    boolean deleteOrderById(String id);
 }
