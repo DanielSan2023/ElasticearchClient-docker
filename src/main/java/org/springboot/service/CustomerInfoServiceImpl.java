@@ -3,7 +3,7 @@ package org.springboot.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch.core.*;
-import org.springboot.exception.ProductNotFoundException;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.springboot.generator.MyUuidGenerator;
 import org.springboot.model.CustomerInfo;
 import org.springboot.utility.AppConstants;
@@ -112,6 +112,31 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
             }
         } catch (IOException e) {
             throw new NoSuchElementException("Problem with deleting customer with ID: " + id, e);
+        }
+    }
+
+    @Override
+    public Optional<CustomerInfo> findCustomerByEmail(String email) {
+        SearchRequest searchRequest = new SearchRequest.Builder()
+                .index(AppConstants.INDEX_CUSTOMERS)
+                .query(q -> q
+                        .term(t -> t
+                                .field("email")
+                                .value(email)
+                        )
+                )
+                .size(1)
+                .build();
+
+        try {
+            SearchResponse<CustomerInfo> response = client.search(searchRequest, CustomerInfo.class);
+            return response.hits().hits().stream()
+                    .findFirst()
+                    .map(Hit::source);
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Customer with email: " + email + " not found in Elastic!");
+        } catch (IOException e) {
+            throw new RuntimeException("Error searching for customer by email", e);
         }
     }
 }
