@@ -7,12 +7,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.Builder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
 @Component
+@Profile("prod")
 public class JwtUtil {
 
     private final Key key;
@@ -36,6 +38,7 @@ public class JwtUtil {
                 .compact();
     }
 
+    //TODO add authorization ROLE
     public String extractCustomerId(String token) {
         return getClaims(token).getSubject();
     }
