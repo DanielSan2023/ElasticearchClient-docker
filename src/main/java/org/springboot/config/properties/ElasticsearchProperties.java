@@ -1,4 +1,4 @@
-package org.springboot.config;
+package org.springboot.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;
