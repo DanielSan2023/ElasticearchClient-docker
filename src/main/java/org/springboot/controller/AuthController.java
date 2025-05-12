@@ -53,9 +53,6 @@ public class AuthController {
         return customerService.findCustomerByEmail(request.getEmail())
                 .map(customer -> {
                     boolean matches = passwordEncoder.matches(request.getPassword(), customer.getPassword());
-                    System.out.println("Heslo z requestu: " + request.getPassword());
-                    System.out.println("Uložené heslo: " + customer.getPassword());
-                    System.out.println("Match result: " + matches);
 
                     if (matches) {
                         String token = jwtUtil.generateToken(customer.getCustomerId(), customer.getRole());
