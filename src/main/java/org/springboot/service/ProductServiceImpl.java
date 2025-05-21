@@ -1,6 +1,7 @@
 package org.springboot.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -11,26 +12,36 @@ import org.springboot.model.Product;
 import org.springboot.utility.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ElasticsearchClient client;
     private final ElasticsearchServiceImpl elasticsearchService;
+    private final EmbeddingService embeddingService;
+    private final QdrantSearchService qdrantService;
 
     @Autowired
-    public ProductServiceImpl(ElasticsearchClient client, ElasticsearchServiceImpl elasticsearchService) {
+    public ProductServiceImpl(ElasticsearchClient client, ElasticsearchServiceImpl elasticsearchService, EmbeddingService embeddingService, QdrantSearchService qdrantService) {
         this.client = client;
         this.elasticsearchService = elasticsearchService;
+        this.embeddingService = embeddingService;
+        this.qdrantService = qdrantService;
     }
 
     @Override
     public Product addProduct(Product product) {
         String eanCode = EANGenerator.generateRandomEAN13();
         product.setEan(eanCode);
+
+        String textToEmbed = product.getName() + " " + product.getDescription();
+        float[] embedding = embeddingService.generateEmbedding(textToEmbed);
 
         try {
             boolean indexExists = client.indices().exists(e -> e.index(AppConstants.INDEX_PRODUCTS)).value();
@@ -44,8 +55,7 @@ public class ProductServiceImpl implements ProductService {
                     .id(eanCode)
                     .build();
             GetResponse<Product> existingProduct = client.get(getRequest, Product.class);
-
-
+            //TODO Check if the product already exists
             if (existingProduct.found()) {
                 throw new IllegalStateException("Product with EAN: " + eanCode + " already exists.");
             }
@@ -56,6 +66,7 @@ public class ProductServiceImpl implements ProductService {
                     .document(product));
 
             if (response.result() == Result.Created) {
+                qdrantService.saveEmbeddingToQdrant(product, embedding);
                 return product;
             } else {
                 throw new RuntimeException("Failed to add product with EAN: " + eanCode);
@@ -288,5 +299,42 @@ public class ProductServiceImpl implements ProductService {
                 throw new RuntimeException("Product with EAN " + ean + " not found", e);
             }
         }
+    }
+
+    @Override
+    public Mono<List<Product>> hybridSearch(String query) {
+        return Mono.fromCallable(() -> embeddingService.generateEmbedding(query))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(queryEmbedding ->
+                        qdrantService.searchByEmbedding(queryEmbedding, 10)
+                                .flatMap(eanCodes -> {
+                                    if (eanCodes.isEmpty()) {
+                                        return Mono.just(List.of());
+                                    }
+                                    eanCodes.forEach(System.out::println);
+
+                                    return Mono.fromCallable(() -> {
+                                        SearchResponse<Product> response = client.search(s -> s
+                                                .index(AppConstants.INDEX_PRODUCTS)
+                                                .query(q -> q
+                                                        .terms(t -> t
+                                                                .field("_id")
+                                                                .terms(ts -> ts
+                                                                        .value(eanCodes.stream()
+                                                                                .map(FieldValue::of)
+                                                                                .collect(Collectors.toList()))
+                                                                )
+                                                        )
+                                                ), Product.class);
+
+                                        List<Product> products = response.hits().hits().stream()
+                                                .map(Hit::source)
+                                                .peek(System.out::println)
+                                                .collect(Collectors.toList());
+
+                                        return products;
+                                    }).subscribeOn(Schedulers.boundedElastic());
+                                })
+                );
     }
 }

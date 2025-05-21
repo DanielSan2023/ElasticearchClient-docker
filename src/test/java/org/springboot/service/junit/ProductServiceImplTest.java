@@ -19,7 +19,7 @@ public class ProductServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        productService = new ProductServiceImpl(null, null);
+        productService = new ProductServiceImpl(null, null,null,null);
         productServiceSpy = Mockito.spy(productService);
     }
 

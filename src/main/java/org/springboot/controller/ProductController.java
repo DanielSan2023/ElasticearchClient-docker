@@ -1,29 +1,25 @@
 package org.springboot.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springboot.exception.ProductNotFoundException;
 import org.springboot.model.Product;
 import org.springboot.service.ElasticsearchServiceImpl;
 import org.springboot.service.ProductService;
 import org.springboot.utility.AppConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
     private final ElasticsearchServiceImpl elasticsearchService;
-
-    public ProductController(ProductService productService, ElasticsearchServiceImpl elasticsearchService) {
-        this.productService = productService;
-        this.elasticsearchService = elasticsearchService;
-    }
 
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
@@ -77,6 +73,11 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsByNgram(@RequestParam("query") String searchTerm) throws ProductNotFoundException {
         List<Product> products = productService.getProductsByNgram(searchTerm);
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/search/hybrid")
+    public Mono<List<Product>> searchProducts(@RequestParam String query) {
+        return productService.hybridSearch(query);
     }
 
     @DeleteMapping("/{id}")

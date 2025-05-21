@@ -1,11 +1,10 @@
 package org.springboot.service;
 
-import org.springboot.dto.OrderDto;
 import org.springboot.exception.ProductNotFoundException;
 import org.springboot.model.Product;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -29,4 +28,6 @@ public interface ProductService {
     List<Product> getProductsByNgram(String searchTerm) throws ProductNotFoundException;
 
     void updateProductsAfterOrderDeletion(List<Product> products);
+
+    Mono<List<Product>> hybridSearch(String query);
 }
