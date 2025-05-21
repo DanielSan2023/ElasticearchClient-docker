@@ -19,8 +19,9 @@ The project leverages **Spring Data Elasticsearch** and the **Elasticsearch Java
 - **Secure Connection**: Configures HTTPS and authentication for Elasticsearch.
 - **JWT Authentication**: Implements JWT authentication for secure access to the API.
 - **Qdrant Integration**: Uses Qdrant for vector similarity search and embedding storage.
-    - **Vector Search**: Supports vector similarity search using Qdrant.
-        - **Embedding Generation**: Generates embeddings for product descriptions and names.
+- **Vector Search**: Supports vector similarity search using Qdrant.
+- **Embedding Generation**: Generates embeddings for product descriptions and names.
+  **Reactive Endpoints**: Using Spring WebFlux and Reactor Mono for asynchronous processing in certain endpoints.
 
 ---
 
@@ -196,6 +197,9 @@ Order → Order index
 - **Build the Project:** `mvn clean install`
 - **Run the Application:** `mvn spring-boot:run`
 - **Access the Application:** The application will start on the default Spring Boot port `(8443)..`
+- **Start Elasticsearch and Qdrant servers locally or via Docker:** 
+    - Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+    - Qdrant: https://qdrant.tech/documentation/quick_start/docker/
 
 ## Docker
 <details>
@@ -221,6 +225,27 @@ Order → Order index
 </details>
 
 
+## Authentication
+
+- Register via `/api/auth/register` with JSON payload including `firstName`, `lastName`, `email`, and `password`.
+- Login via `/api/auth/login` to receive a JWT token.
+- Include the token in the `Authorization` header as `Bearer <token>` when accessing secured endpoints.
+
+
+## Testing
+
+The project uses JUnit and Mockito for unit and integration testing. Testcontainers can be used for spinning up Elasticsearch during tests.
+
+---
+
+## Contribution and Development
+
+Feel free to contribute by submitting pull requests with clear descriptions of your changes. Future plans include:
+- OpenAPI / Swagger documentation
+- Extended test coverage
+- Adding frontend UI components
+
+
 ## Postman
 
 [Link  Postman export](ElasticsearchClient API.postman_collection.json)
@@ -228,6 +253,12 @@ Order → Order index
 ## License
 
 - This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Contact
+
+For any questions, please contact:  
+[Daniel](mailto:electronic.san@gmail.com)
+
 
 ![img_2.png](logos%2Fimg_2.png)
 ![img_4.png](logos%2Fimg_4.png)
