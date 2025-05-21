@@ -1,0 +1,1226 @@
+{
+	"info": {
+		"_postman_id": "75f10660-554e-47a6-9ce6-e074608eb8cc",
+		"name": "ElasticsearchClient API",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31070274"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "getAll products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/products",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "getHybrid products  Elk&Qdrant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmMThjOWFjOC1lODY2LTQ4ODItOTA2Yi02NWQzYjU5ZWVmYzYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0NjYzMDAyNywiZXhwIjoxNzQ2NjY2MDI3fQ.CkB91ZhPKt83kJgHnsistAs_t2tNzW7Zh9dfw0iNLNU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:8443/api/products/search/hybrid?query=resolution monitor ",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"products",
+								"search",
+								"hybrid"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "resolution monitor "
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "getProductsByNgramPrefix",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/search/productsByNgram?query=Ext",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"search",
+								"productsByNgram"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "Ext"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "fuzzyQuery",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/products/search/fuzzy?query=Laptops",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"products",
+								"search",
+								"fuzzy"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "Smartphone",
+									"disabled": true
+								},
+								{
+									"key": "query",
+									"value": "Mobile",
+									"disabled": true
+								},
+								{
+									"key": "query",
+									"value": "Laptops"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "search by Price Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"minSalary\": \"50\",\r\n    \"maxSalary\": 40055\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/products/searchByPriceRange?minPrice=500&maxPrice=5000",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"searchByPriceRange"
+							],
+							"query": [
+								{
+									"key": "minPrice",
+									"value": "500"
+								},
+								{
+									"key": "maxPrice",
+									"value": "5000"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "getAll products By Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/search/:category",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"search",
+								":category"
+							],
+							"variable": [
+								{
+									"key": "category",
+									"value": "Laptop"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "get Product by Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/:ean",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								":ean"
+							],
+							"variable": [
+								{
+									"key": "ean",
+									"value": "4007279274497"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "sold Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/products/sold/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"sold",
+								":id"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "4007279274499",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "4007279274497"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"ean\": \"4007279274497\",\r\n        \"name\": \"Lightweight Chromebook\",\r\n        \"description\": \"Affordable Chromebook with Intel Celeron processor and 4GB RAM\",\r\n        \"price\": 350.0,\r\n        \"category\": \"Laptops\",\r\n        \"available\": 1020,\r\n        \"sold\": 56        \r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/products/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "4007279274497"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ean\": \"4105062969075\",\n    \"name\": \"Lightweight Chromebook\",\n    \"description\": \"Affordable Chromebook with Intel Celeron processor and 4GB RAM\",\n    \"price\": 350.0,\n    \"category\": \"Laptops\",\n    \"available\": 2,\n    \"sold\": 45,\n    \"timestamp\":\"2025-03-18T16:21:16.518+00:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/products/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "10"
+								}
+							]
+						},
+						"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "getAll customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/customers/all",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"customers",
+								"all"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "get Customer by Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/customers/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"customers",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "d8b6980f-453e-4886-9375-fc9872c7195f"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "ORD999",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/customers/:id?orderId=sdfsd55sd5ds2",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"customers",
+								":id"
+							],
+							"query": [
+								{
+									"key": "orderId",
+									"value": "sdfsd55sd5ds2"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "334747a3-e232-47e3-a190-1e6469af1fb8"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"protocolVersion": "auto"
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmMThjOWFjOC1lODY2LTQ4ODItOTA2Yi02NWQzYjU5ZWVmYzYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0NjYxMzY1NiwiZXhwIjoxNzQ2NjQ5NjU2fQ.nlO7T0ZLDz22xao9IEDkAh1qrI9IqS75y_KMWjOVpU4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Melody\",\n  \"lastName\": \"Carter\",\n  \"email\": \"melody.carter@example.com\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/customers",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"customers"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete data Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/info?id=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"info"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "getAll orders Iterable",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmMThjOWFjOC1lODY2LTQ4ODItOTA2Yi02NWQzYjU5ZWVmYzYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0NDcxMTk3MCwiZXhwIjoxNzQ0NzQ3OTcwfQ.YJkxS9_AUZyu58UTOY5cfNThiiJzCqazmrNyugqUwLE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/orders/all",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"orders",
+								"all"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "get Order by Id with Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/orders/productsInfo/:ean",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"orders",
+								"productsInfo",
+								":ean"
+							],
+							"variable": [
+								{
+									"key": "ean",
+									"value": "cc47fae9-7eff-4dd0-b943-ed29bd344582"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:8443/api/products/productsInfo/:id",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"products",
+								"productsInfo",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "4007279274498"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ean\": \"4105062969675\",\n    \"name\": \"Lightweight Chromebook\",\n    \"description\": \"Affordable Chromebook with Intel Celeron processor and 4GB RAM\",\n    \"price\": 350.0,\n    \"category\": \"Laptops\",\n    \"available\": 100,\n    \"sold\": 45\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/orders?customerId=a9211a55-6706-431e-aa23-713bbd542012&productEans=4007279274497,4007279274498",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "a9211a55-6706-431e-aa23-713bbd542012"
+								},
+								{
+									"key": "productEans",
+									"value": "4007279274497,4007279274498"
+								},
+								{
+									"key": "productEans",
+									"value": "1215161",
+									"disabled": true
+								}
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "delete OrderByID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmMThjOWFjOC1lODY2LTQ4ODItOTA2Yi02NWQzYjU5ZWVmYzYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0NDg4MDYxMiwiZXhwIjoxNzQ0OTE2NjEyfQ.di0zuFl-hnmUCMNvmw3-VEicLVdKEAvvwyNPFGW-I00",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/orders/:id",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"orders",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "964f6df1-b927-4005-937c-8e0f1824a3b1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOrder By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmMThjOWFjOC1lODY2LTQ4ODItOTA2Yi02NWQzYjU5ZWVmYzYiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0NDg4MDYxMiwiZXhwIjoxNzQ0OTE2NjEyfQ.di0zuFl-hnmUCMNvmw3-VEicLVdKEAvvwyNPFGW-I00",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/orders/:id",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"orders",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentification",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJyZXF1ZXN0Q29udGV4dCI6eyJodHRwIjp7Im1ldGhvZCI6IlBVVCJ9LCJhdXRob3JpemVyIjp7Imp3dCI6eyJjbGFpbXMiOnsiYXV0aF90aW1lIjoiMTcxMTk5MDYwMCIsImNsaWVudF9pZCI6IjE4anZucTNmY3BnMTBnbXFqZjFrMWp1aXI2IiwiY29nbml0bzpncm91cHMiOiJbY29tcGFueTFdIiwiZXZlbnRfaWQiOiI5YzYxMzIwYy0wNDc5LTQyOGMtYTQwZC00ZDkxOGViOGE4YTMiLCJleHAiOiIxNzExOTk0MjAwIiwiaWF0IjoiMTcxMTk5MDYwMCIsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb20vZXUtY2VudHJhbC0xX3BVOVNZVGd3dCIsImp0aSI6IjRmZjEzMDk3LTQ4MDMtNGE0ZC04NjhmLTYwNWFhMjNjNDcwNCIsIm9yaWdpbl9qdGkiOiI4NDEzY2MyYy1lNzQ5LTQ4MjYtYTQ2NS0yZTcxNjNlYzU1NzIiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIiwic3ViIjoiYTQxYWI4MmMtNGIzYy00OGNmLWEzOWQtZDM2YjM2ZWU4YzEwIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwidXNlcm5hbWUiOiJhNDFhYjgyYy00YjNjLTQ4Y2YtYTM5ZC1kMzZiMzZlZThjMTAifSwic2NvcGVzIjpudWxsfX19LCJib2R5Ijp7ImVtcGxveWVlSWQiOiJFbXBsb3llZTEiLCJyb2xlcyI6IkFTU0lTVCJ9LCJzdGFnZVZhcmlhYmxlcyI6eyJ0YWJsZSI6ImRldmVsb3AifSwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ._0J__q8tEvYQHkkNHtfMkPmFxNSJ1z8CGYkAyQAUHOg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n         \"email\": \"jehny.doe@example.com\",\r\n  \"password\":123456\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/auth/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/auth",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Qdrant",
+			"item": [
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6333/collections/products/points/4002331974612",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6333",
+							"path": [
+								"collections",
+								"products",
+								"points",
+								"4002331974612"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6333/collections/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6333",
+							"path": [
+								"collections",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"vector\": [0.01462374,0.011682687,0.0071237427,-0.029899653,-0.009556852,-0.0013529467,-0.025785942,-0.023315208,0.005063752,0.0038189783,0.010691885,0.03037624,-0.012610781,-0.009111619,-0.03433945,-0.0020693971,0.0049665533,-0.0043551405,0.024607012,-0.010472404,-0.008622488,0.001682169,-0.003232649,0.010967805,-0.015025077,-0.0107859485,0.02924748,-0.022713201,0.0046310597,0.0052205245,0.016279258,-5.843695E-4,-0.012084025,-0.03516721,-0.0035273815,0.021120392,0.003398828,0.024807682,0.008403006,-0.013896315,0.0037876237,0.0046279244,0.008647571,0.00459657,0.009607019,0.012303506,-0.0014391716,-0.008961117,-0.03830266,0.018010026,0.0088795945,0.026789287,-0.0015943764,0.0027121643,-0.0034991624,0.0060420125,-0.0022935818,0.009255849,0.014247485,-0.0164423,0.011068139,-0.009619561,-0.005496444,0.014260028,-0.02026755,-0.012435195,-0.027290959,0.011852002,0.00877299,-0.013984107,0.043294296,0.024017548,7.6034665E-4,-0.0020599908,0.009349912,-1.7000019E-4,-0.014698991,-0.0062175975,-0.009845314,0.009412621,0.026337782,-0.016341966,0.027591962,-0.014184777,0.013758356,0.019816045,-0.014197319,-0.0011201396,0.006151753,-0.016956514,-8.504909E-4,-9.3044486E-4,0.009343642,0.014648823,0.014197319,0.009738708,0.01790969,0.024381261,0.0014148719,-0.01030936,0.024092799,0.02771738,-0.019326914,-0.019339457,-4.3308406E-4,-0.0041137105,-0.0035117043,3.5175832E-4,0.0060231998,-1.9527976E-4,-0.032382928,0.011187286,0.016492467,-0.028946476,0.008164712,-0.018298488,0.01636705,-0.020317717,0.018474072,-0.022035943,0.006728676,0.011726583,0.0050041783,0.004812916,-0.00654682,0.02571069,-8.489231E-4,-0.017859524,0.008584863,0.010510029,0.021647148,-0.0057598217,0.011971149,-0.013783439,-0.031806007,0.0058915108,-0.013846148,0.020593638,-0.014523406,0.0056312685,0.016266715,0.030627077,4.8442706E-4,-4.4954516E-4,-0.0012878862,0.02535952,-0.012723656,0.0100522535,0.025196478,0.0067663016,-0.008189796,0.023026746,0.0038189783,0.006255223,-0.01190844,0.0036716121,0.017382937,0.0055058505,0.0023045558,-0.026362864,0.0017009818,-0.015426415,-0.018072736,-0.021258352,0.002737248,0.023428084,0.040785935,0.010742052,0.004185826,-0.0055842367,0.0054839025,0.033762526,-0.011726583,0.022600325,-1.3139496E-4,0.0066408836,-0.004828593,-0.0080581065,-0.015363706,-0.0073494953,-0.014297653,-0.013658021,0.0034207762,0.0053678905,-0.008064378,-0.007180181,0.030275907,-0.022086112,0.033762526,-0.018499156,0.011300162,0.021007515,-0.009914294,-0.031605337,-0.67023385,-0.023841962,-0.006854094,-0.009450247,0.020443136,0.031780925,0.015213205,0.0131312655,0.0058632917,-0.021295978,0.010660531,-0.0016445436,-0.016530093,-0.012522988,-0.004922657,-0.029999988,-0.023152163,1.7695696E-4,-0.025434772,-0.011858272,-0.0064590275,0.016918888,-0.011293892,-0.009437705,-0.011789293,-0.011613707,0.009218223,0.0028673692,-0.026764203,0.032984935,-0.016166382,0.0015206933,0.005280098,0.013106181,0.047282588,-0.02444397,-0.01783444,0.011356601,0.0050261267,0.0420652,-0.004696904,0.012918055,0.016969057,0.004668685,-0.024193134,0.036396306,0.0040071052,-0.026563535,0.02068143,0.008936033,-0.008553508,0.006295984,0.013883773,0.011406768,0.012943138,0.00724289,0.042240784,0.012027587,-0.0069544283,0.0054023806,-0.018511698,0.018160528,-0.030275907,-0.010892554,-0.021158017,0.008829428,-0.022888787,-0.019653002,-0.005587372,-0.018549323,0.0075313514,0.035192292,0.018938119,0.008998742,0.008490799,0.0155518325,0.038904667,-0.026287613,0.009663457,0.016116213,0.010629176,-0.020292634,-0.0045307255,-0.01107441,0.03825249,0.010553925,-0.022186445,0.011626249,0.018185612,0.0051484094,0.02326504,0.008446903,0.0073933913,-0.0029410522,-0.0073244115,0.037800986,-0.025986612,0.011400497,-0.019753337,0.0018216965,-0.024155509,0.0055685593,0.009073993,0.025158852,0.036245804,0.0031918883,-0.03504179,0.009933107,0.012334861,-0.0022543888,-0.012322319,-0.019665543,-0.011927253,-0.0023876454,0.008415548,-0.031806007,0.0087040095,-0.008371652,0.010673072,-0.0013019957,0.03356186,-0.014372904,0.029297646,0.018775076,-0.006722405,0.009174327,-4.8011582E-4,-0.012334861,-0.011463206,-0.005001043,0.006872907,0.008164712,0.016567718,-0.007895064,0.0033517962,0.0025114955,0.020957349,0.003734321,0.013043473,-0.010923908,-0.027265875,-0.010403424,-0.003565007,0.0044836937,-0.005236202,-0.026914705,-0.0067035924,-0.010823574,-0.021346144,-0.022098653,-0.020142132,-0.005697113,0.0017009818,0.025785942,-0.0066847797,-0.019627918,0.00912416,-0.004264212,-0.0013999785,-0.015050161,0.009211953,-0.014586114,-0.011456935,0.0061893784,0.014636281,-0.0063210675,0.0067035924,0.04061035,-0.024506679,-0.0059510847,0.02305183,0.004797239,-0.0075188093,0.013081098,0.0045369966,0.008158442,-0.0101839425,-0.022537615,0.010083607,0.01267349,0.016141297,-0.0028642337,-0.01936454,-0.015263371,0.04269229,0.014749157,0.011732855,-0.0020066882,-0.006317932,0.004179555,-0.0072052646,0.032909684,-0.004715717,-0.005339672,0.0070735756,0.022274237,0.007061034,-0.009657186,0.009506685,0.0031354502,0.034439784,-0.007612873,-0.0039412607,-0.03371236,0.018549323,-0.011105765,0.0120463995,-0.0050480748,0.0105163,0.0149498265,-0.007920147,-0.017357852,0.0021603252,0.006060825,0.008591133,0.031780925,-0.014698991,0.007161368,-0.018511698,-0.017734107,-8.063986E-5,-9.704218E-4,0.010177671,0.013281767,-0.0073933913,-0.007468642,-0.01720735,0.020004172,0.015727418,-0.017947316,-0.02403009,0.011670145,-0.006609529,-0.0021634607,-0.0023860775,0.029347813,0.022851162,0.009061451,0.007600331,0.00466555,0.03516721,0.014260028,0.020819388,-0.0021305385,-0.010861199,0.013532603,0.02257524,0.011833189,-0.016066046,-0.012905513,0.010898825,0.0068979906,-0.009268391,0.0020505844,0.027391292,-0.0068101976,0.02110785,0.017997485,0.007111201,0.020656345,-0.0063273385,-5.447845E-4,0.030150488,0.009531769,0.011469477,-0.006929345,-0.0017464458,-0.012221985,-0.0059730327,-0.017495813,0.005474496,-0.0057566864,0.034640454,-0.008001668,-0.031304333,0.020091964,0.011607436,0.0015959442,4.522887E-4,0.032332763,-0.011613707,-0.025296813,0.015213205,0.016128756,-7.191939E-4,-0.0100522535,-0.041739114,0.016943973,0.008760448,0.032006674,0.0020741003,0.009770063,0.012347403,-0.015112869,-0.0049351985,-0.03406353,0.041262526,-0.025560189,0.0021226997,0.030677244,0.014247485,0.011983691,-0.024331093,-0.023992464,-0.0042516706,-0.0040384596,-0.008083191,-0.006289713,0.010666802,-0.010754594,-0.009663457,-0.01253553,-0.01587792,-0.018612033,-0.023114538,0.0036089031,-0.025146311,0.020769222,0.034740787,0.014673906,-0.030601993,2.817986E-4,-0.0210326,-0.028745808,0.07214044,0.036220722,0.01720735,0.012454008,-0.004207774,1.2737766E-4,-0.033110354,-0.010641718,0.014598656,0.014937284,-0.0046906336,0.021923067,0.008747906,-0.019489959,0.0027215707,-0.008196067,-0.0049163857,-0.009694812,0.020229924,-0.020744137,0.016279258,-0.0022026538,0.034038447,-0.0050261267,0.0044492036,-0.0033173063,0.017796814,0.0056563523,-6.4031774E-5,-0.001859322,-0.015752502,-0.014385445,-0.0036339867,-0.021371229,-0.005383568,-0.007437288,-0.0015959442,0.0053929742,0.0021415125,0.015025077,0.0048442706,0.006904261,0.019251663,0.0024550576,-6.8744743E-4,0.015526749,-0.006872907,0.011795564,-0.0049351985,-0.021007515,0.0344147,0.00995819,-0.007412204,0.012943138,-0.007876251,0.0024738703,-0.017257517,-0.030075237,-0.003953803,-0.018072736,-0.005383568,-0.024845308,-0.002875208,0.008039294,-0.02040551,-0.009776333,-0.009092806,-0.014648823,-0.01873745,0.020493302,-0.020104507,-0.011958607,-0.025083601,0.0011028945,0.0051452736,0.0017699617,-0.004637331,3.060983E-4,-0.0023359105,0.022688117,-0.017056849,6.10237E-4,-0.015940629,-0.009857856,0.011237454,0.01783444,0.0018013162,-0.0018201289,-8.5979926E-5,0.010754594,0.02834447,-0.016329424,0.013783439,0.0044931,-0.010955263,-5.5850204E-4,0.017809357,-0.024882933,0.00400397,-0.0055622887,0.0015716444,-0.02994982,-0.021120392,-0.013908857,0.013921399,0.001967495,-0.010541383,0.0106542595,-1.2523429E-5,-0.004132523,0.01462374,-0.011958607,-0.016668053,-0.00588524,0.01156354,0.005857021,-0.019389624,0.0017746649,-0.010372069,-0.011130848,-0.0069544283,-0.02932273,0.035618715,-0.011795564,-0.017182266,0.027541794,0.030877912,-0.0049696886,0.0017778003,0.016166382,-0.014999994,0.008095732,-0.00988921,-0.036872894,-0.013570229,-0.004179555,0.0034960269,0.02416805,-0.023428084,-0.025234103,-0.047533426,0.004076085,0.00128867,0.00933737,-0.016341966,-0.024368718,-0.018273404,-0.007368308,-0.0055340696,0.02312708,0.0045025065,0.0044241203,-0.0060953153,5.2322826E-4,-0.013770897,-0.038829416,-0.017295143,-0.039431423,0.0070735756,0.033862863,0.0054494124,-0.011732855,0.016868722,-0.014786783,0.0052957754,0.0050198557,-0.0054839025,-0.02571069,-0.039381254,0.014510863,0.037700653,0.010284277,0.008246234,-0.007932689,-0.015326081,0.0128239915,0.036446474,0.011162203,-0.02152173,-0.048737437,0.023904672,-0.014924743,-0.0032890872,-0.0018640251,-0.020154674,-0.015175579,0.0068352814,-0.0072240774,0.023942297,0.013357018,0.031053498,-0.0023625616,0.026563535,0.011895898,0.014498321,0.0024174321,0.00254285,-0.021195643,0.012805179,0.042316034,0.020066882,0.015890462,0.007161368,-0.0056877066,-0.017370393,0.02033026,0.0149498265,0.020280091,-0.012654677,-0.025372062,0.0019267341,-0.019063538,-5.5017354E-5,-0.0069356156,0.0022089246,0.011820647,-0.016617887,0.028946476,0.014335278,-0.018260863,-0.014548489,0.009782605,0.0155518325,0.0101714,-0.013319393,0.014322736,-0.012077754,-0.0105163,-0.013168891,-0.009048909,-0.008910949,0.024180591,0.023428084,-0.018938119,-0.01838628,0.008841969,0.00786998,-0.0022857431,-0.045627072,-0.010629176,0.009977003,0.0031950236,-0.0010213729,0.008471986,-0.025096143,-0.0024597608,-0.030877912,-0.006054554,0.009186869,0.010215296,-0.033938114,0.016241632,-0.018135443,0.014661365,0.010246651,-0.0055466113,0.0013843012,0.00954431,-0.013482436,0.007155097,-0.013018389,0.030953163,-0.026839454,0.0116513325,0.011068139,0.0024378125,-0.011369143,-0.011808106,0.011425581,0.021897985,-0.017821899,-0.018298488,0.0080581065,0.01867474,0.029372897,-0.0149498265,-0.012980764,-0.017019223,-0.022725742,-0.010459862,0.00386601,-0.026488284,0.02994982,-0.0018671606,0.0033173063,-0.011927253,-0.028394638,8.49707E-4,0.017784273,-0.02423076,-0.016291799,-0.013708188,0.0025585273,0.011331517,0.037299316,0.0018028838,-0.0035085687,0.016040962,-0.03278427,-0.002114861,0.02423076,0.0060953153,-0.0137332715,0.013043473,-0.0039851572,-0.004380224,0.018913036,-0.009845314,-0.02444397,-0.0025099278,-0.031730756,1.7764285E-4,0.022512533,-0.0036716121,0.0047408007,-0.011676417,0.010980346,-0.030601993,0.0057378737,-0.018536782,-0.0025177666,-0.0041137105,0.007286786,0.005926001,0.012579426,-0.0017840711,-6.631477E-4,0.011645062,-0.011331517,-0.0035963613,3.940869E-4,0.005587372,-0.018624574,-0.0072052646,-0.03280935,0.00891722,-0.007487455,-0.0077821873,-0.022324406,-5.686923E-4,-0.01072324,0.025447313,-0.0033768797,0.028520055,-0.011268808,-0.023691462,-0.027842797,0.0055779656,-0.013883773,-0.0070422213,-0.002179138,0.029347813,0.01385869,0.0022967171,-0.013168891,0.0062646293,-0.032433096,-0.035142124,-0.02877089,0.021772565,0.007161368,0.015827753,0.0081458995,0.021183101,0.0011985258,0.006176837,-0.017746648,-0.016743304,-0.013344476,-0.00849707,0.016530093,-0.011877085,-0.037826072,8.755745E-4,0.029523399,0.008973658,-1.3580419E-4,0.026287613,-0.018273404,-0.009406351,0.034239117,-0.0014673907,-1.551068E-4,0.007901334,0.014046817,-0.03892975,0.020819388,0.006227004,0.022851162,-0.029999988,0.008114545,0.02479514,0.0026980548,0.013984107,-0.026563535,-0.014046817,0.0067663016,-0.030326074,0.0040980335,-0.021546813,-0.025510022,0.011212369,0.027918048,0.009005013,0.006205056,0.017056849,-0.01699414,-0.0013882206,0.021684773,-0.037299316,0.0013929238,-0.026137114,-0.01699414,-0.016831096,-0.014749157,-0.025171394,-0.032157175,-0.03599497,0.021847816,0.040033426,-0.00815217,-0.0076630404,-0.0069983248,0.004612247,-0.023039287,-0.009312287,0.034364533,-0.039180584,0.006797656,0.010321902,-0.010823574,-0.02924748,0.021709858,-0.02444397,0.016693138,0.0082336925,0.21250828,-0.014535947,0.015213205,0.034364533,0.041463193,0.026638785,0.00842809,0.003461537,0.0076630404,0.012253339,-0.0045056418,-0.0030649025,-0.017094474,-0.012290965,0.016291799,-0.013595312,-0.030275907,-0.027466543,-0.014874576,0.004574622,0.013369559,-0.020731596,-0.011463206,-0.030752495,0.014034275,-0.011375413,-0.010033441,0.020794306,0.016592802,0.03356186,-0.0155518325,-0.016943973,0.011249995,-2.812107E-4,0.013394644,0.01434782,0.011381684,-0.01719481,0.021471562,0.024017548,0.011732855,0.023829421,0.03461537,-0.0042203157,0.02326504,-0.002343749,-0.007167639,0.013357018,0.0068352814,-0.00710493,-0.015025077,0.007819813,-0.0034239115,0.009500414,-0.034239117,-0.023666378,-0.0028266083,-0.014009192,-0.017734107,-0.015025077,0.011061869,0.02688962,-0.01205267,0.008252505,-0.015313539,0.028745808,-0.010020899,0.026638785,0.01991638,-0.015802668,-0.028946476,-0.0016272987,-0.00633988,0.0065719034,0.008898407,-0.033386275,0.010760865,0.009086534,0.033887945,0.026638785,0.0032890872,-0.030175572,-0.0131312655,-0.01880016,-0.020392967,-0.020167215,0.015639625,-0.0070986594,-0.002821905,0.015137954,-0.0058632917,-0.0021760024,-0.023791796,0.022111194,0.01128762,-0.0022637951,-0.0013568661,0.0131312655,0.015990796,-6.427673E-4,-0.00995819,0.035292625,0.016254174,-0.030978248,-0.0374749,-0.018361196,-0.008271318,0.021960692,0.008597405,-0.008754177,0.0089673875,-0.028294303,0.011469477,-0.0017119558,-0.011833189,0.017370393,-5.2714755E-4,-0.019251663,-0.0042736186,0.004151336,0.037625402,-0.024895474,0.018561864,0.0018655929,-2.0556795E-4,-0.029071894,0.0032232427,-0.005797447,-0.028821059,-0.023804339,0.016191464,-8.3794905E-4,0.004806645,-0.021847816,-0.004442933,0.012855345,0.008127087,-4.9932045E-4,-0.0036684766,-0.014611198,0.010760865,-0.016078588,0.002618101,-0.004032189,0.01922658,0.013156349,-0.0025067923,0.00396948,-0.011638791,-0.01985367,-0.003593226,-0.0131312655,0.004276754,-0.012660948,0.011137119,0.011594894,-0.026262531,-0.010246651,-0.0097010825,0.018160528,-0.011381684,-0.022023402,0.015363706,-0.016655512,-0.016693138,0.009224494,-0.15772569,-0.00386601,0.0055560176,-0.0015755637,-6.435512E-4,0.016479926,0.0054494124,0.007920147,-0.0128678875,-0.0053051817,0.033862863,-0.006490382,-0.039155502,-0.02020484,0.007719478,0.0040980335,-0.011325246,0.014498321,-0.009933107,-0.016492467,0.03308527,-0.018524239,0.0052832337,-0.041839447,0.013795981,-0.021546813,-0.014385445,0.0171321,-0.0021399448,-0.015526749,0.0058538853,-0.008327756,0.032984935,0.014724074,0.0020317717,-0.0079703145,-0.01824832,-0.009895481,-0.004790968,-0.002953594,-0.0053584846,0.022023402,0.017420562,-0.009036368,-0.003953803,0.014887118,0.0088795945,0.0049853656,0.019402165,-0.0050386684,0.011024243,-0.02834447,-7.940527E-4,-0.012811449,0.019602835,-0.0033737444,-0.0109176375,-0.010083607,-0.018448988,0.005615591,-0.036471557,-0.017370393,-0.020480761,0.0018561865,0.0067600305,-0.025434772,0.003684154,0.02681437,-0.0046906336,-0.0073306826,-0.0024503544,-0.025196478,0.009262119,-0.0126045095,0.036295973,-0.005490173,0.014034275,0.010409694,0.008070649,-0.018988287,-0.02061872,-0.006697322,-0.005634404,0.026663868,-0.010202755,-0.029623734,-0.028244136,0.008227421,0.0010637015,-0.0087040095,0.030953163,-0.027742462,0.005731603,-0.019489959,0.01671822,-2.2046134E-4,-0.019816045,-0.015790127,0.0027278417,-0.012529259,-0.01128762,-0.0019753336,-0.024707347,0.019891296,0.040760852,0.020719055,0.016417217,0.035142124,0.046404663,-0.031505004,-0.0210326,0.0056783003,0.0057598217,0.0171321,0.020305175,0.0015230449,-0.004414714,-0.0010637015,2.9042107E-4,-0.020242466,0.048737437,-0.022249155,-0.029849486,0.0045275902,-0.01942725,-0.015137954,-0.071688935,-0.019803504,0.027642129,0.02806855,-0.017157184,0.007675582,-0.008139629,-0.0022402792,5.1695737E-4,0.026086945,0.0058099893,-0.016705679,-0.008070649,0.0033329835,0.02924748,-0.010058524,0.0020349072,-0.024832765,-0.012943138,0.025384605,-0.021208186,-0.014636281,-0.0149498265,-0.011375413,-0.032834433,-0.0035744132,-0.027065206,-0.0064057247,0.018624574,0.014059358,0.009450247,-0.016881263,0.014799325,-0.00800794,-0.011118307,-0.016040962,-0.008189796,-0.021609522,0.01566471,-0.019264206,-0.0026447522,-0.013532603,0.00327341,-0.02277591,9.273094E-4,0.006361828,0.0019204633,0.01956521,0.0068352814,-0.002668268,-0.0082775885,-0.0059354072,-0.033887945,0.0047533424,0.017119559,-0.0014266298,-0.012504175,-0.0017354717,-0.02096989,0.018850327,-0.029698985,0.021145476,-0.026162196,0.023729088,0.004543267,-0.0067161345,-0.01016513,0.0021854087,0.01880016,0.0090112835,0.0050888355,-0.0032091332,-0.00724289,0.0218729,-0.004257941,0.008854511,-0.02779263,-0.011695229,0.025647983,0.010698156,-0.022198988,-0.018348655,0.00147131,-0.011576082,-0.005703384,0.02716554,-0.026362864,-0.017495813,-0.008051836,-0.046580248,0.0057849055,0.044974897,0.012366216,0.009237036,-0.011055597,-0.012855345,0.017169725,0.002166596,0.01573996,0.016128756,-0.007600331,-0.008296401,-0.07876251,0.023164706,0.011212369,0.01052257,-0.010848657,0.0016131891,0.018436447,-0.026212363,-0.006904261,-0.009813959,-0.017696481,0.0043081087,-0.010660531,-0.008660113,-0.016931431,0.0046279244,0.02834447,0.008885866,-0.010773406,-0.0034207762,-0.017872065,0.0035838196,0.016893806,0.019138787,-0.006026335,0.012755011,-0.037023395,-0.01566471,-0.002925375,-0.0017323362,0.01093645,0.009168057,-0.026563535,0.01385869,0.0052550146,-0.024280926,-0.017345311,0.027541794,0.005772364,-0.030752495,0.014673906,-0.026086945,-0.0010793788,-0.0053741615,-0.029799318,0.008265046,-0.015100328,-0.02611203,-0.002806228,0.003649664,-0.004671821,0.0076881237,0.019239122,-0.022951495,-0.013306851,-0.014648823,0.009688541,0.012930596,0.03092808,-0.02576086,0.022387113,0.0067161345,0.008390465,0.0023170977,0.0047533424,4.5385642E-4,-0.014698991,-0.018825242,0.011262537,0.013081098,9.357359E-5,-0.016755845,0.014874576,0.027842797,0.011889627,-0.026989955,0.001978469,-0.011030514,-0.014736616,0.005217389,-0.0087040095,0.025196478,-0.028018383,0.0031715077,0.028294303,-0.0068979906,-0.019527584,0.012918055,0.017734107,0.017169725,-0.023064371,0.013369559,-0.0020035526,0.008114545,0.0075188093,0.004229722,0.023841962,-0.009469059,0.0072052646,0.020731596,-0.004903844,-0.023967382,-0.017734107,-0.015175579,-0.0031040956,0.022449823,-0.014786783,-0.040133763,0.0031903205,0.038678914,0.007876251,0.0072742444,-5.063752E-4,0.01609113,0.013795981,0.021960692,-0.0062301396,-0.010484945,-0.02779263,0.044096973,4.436662E-4,0.030225739,0.007976585,-0.0076379566,0.034314368,0.0011812808,0.0018561865,-0.0054713604,0.032307677,0.0057566864,-0.0049163857,0.004728259,-0.0021477833,-0.026964871,-0.015376247,-0.007061034,-0.013833607,0.009556852,-0.0026933516,0.09913039,0.017846983,-0.003502298,0.011776751,-0.010027169,0.022663034,0.019577751,-0.0064590275,-0.016517552,-0.016617887,0.0034050988,0.0024911151,-0.012761282,-0.005872698,0.007844896,0.0021132934,0.014372904,-0.017232435,-0.050618708,0.016843637,0.01867474,-0.020280091,0.009688541,0.027892964,-0.005897782,-0.012040129,0.024494138,0.023089455,-0.022612866,-0.018285945,-0.006496653,-0.008133357,-0.020882098,-0.012993306,0.0066408836,-0.014987452,-0.005571695,4.7815614E-5,0.01678093,-0.0013537306,0.00877926,0.038202327,-0.02068143,0.01755852,0.015539291,-0.006622071,-0.019464875,-0.0059887096,-0.0040635434],\r\n  \"top\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6333/collections/products/points/search",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6333",
+							"path": [
+								"collections",
+								"products",
+								"points",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		}
+	]
+}
